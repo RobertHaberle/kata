@@ -2,155 +2,144 @@
 <html lang="en">
 
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Architectural Katas: Practicing Architecture</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="">
-  <meta name="author" content="">
-  <meta http-equiv="Access-Control-Allow-Origin" content="*">
+  <meta name="description" content="Practice your software architecture skills with Architectural Katas." />
+  <meta name="author" content="Robert Haberle" />
+  <meta http-equiv="Access-Control-Allow-Origin" content="*" />
 
-  <!-- Le styles -->
-  <link href="./css/bootstrap.css" rel="stylesheet">
+  <!-- Bootstrap 5 CSS (from CDN for simplicity) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
   <style>
     body {
-      padding-top: 60px;
-      padding-bottom: 40px;
+      padding-top: 5rem;
+      padding-bottom: 2rem;
     }
 
     .sidebar-nav {
       padding: 9px 0;
     }
   </style>
-  <link href="./css/bootstrap-responsive.css" rel="stylesheet">
-
-  <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
-  <!--[if lt IE 9]>
-      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
 </head>
 
 <body>
 
-  <div class="navbar navbar-fixed-top">
-    <div class="navbar-inner">
-      <div class="container-fluid">
-        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </a>
-        <a class="brand" href="#">Architectural Katas</a>
-        <div class="nav-collapse">
-          <ul class="nav">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="about.html">About</a></li>
-            <li><a href="rules.html">Rules</a></li>
-          </ul>
-        </div>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" aria-label="Main navigation">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">Architectural Katas</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+          <li class="nav-item"><a class="nav-link" href="rules.html">Rules</a></li>
+        </ul>
       </div>
     </div>
-  </div>
+  </nav>
 
-  <div class="container-fluid">
-    <div class="row-fluid">
-      <div class="span9">
-        <div class="hero-unit">
+  <main class="container">
+    <div class="row">
+      <section class="col-lg-9">
+        <div class="p-5 mb-4 bg-light rounded-3">
           <h2>Your Architectural Kata is...</h2>
-          <h1 id="kata-title"></h1>
-          <p id="kata-text"></p>
-          <p />
-          <p id="bookmark-url"></p>
+          <h1 id="kata-title" class="display-4"></h1>
+          <div id="kata-text"></div>
+          <p id="bookmark-url" class="mt-3"></p>
         </div>
-      </div><!--/span-->
-    </div><!--/row-->
+      </section>
+    </div>
 
-    <hr>
+    <hr />
 
-    <footer>
-      <p>&copy; Neward &amp; Associates 2012</p>
+    <footer class="text-center mt-4 mb-3">
+      <p class="text-muted">&copy; Neward &amp; Associates 2012</p>
     </footer>
+  </main>
 
-  </div><!--/.fluid-container-->
-
-  <!-- Le javascript
-    ================================================== -->
-  <!-- Placed at the end of the document so the pages load faster -->
-  <script src="./js/jquery.js"></script>
-  <script src="./js/bootstrap-collapse.js"></script>
-  <script src="./js/urlvars.js"></script>
+  <!-- Bootstrap 5 Bundle with Popper (includes JS) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    // Github REST API has one endpoint I care about: getContents
-    // (documented at https://developer.github.com/v3/repos/contents/)
-    var githubSrcBase = 'https://api.github.com/repos/RobertHaberle/ArchKatas/contents/'
+    // Helper: get query parameter by name
+    function getUrlParam(name) {
+      return new URLSearchParams(window.location.search).get(name);
+    }
 
-    // These functions require definition before use because browser
-    var fetchKata = function (filename) {
+    const githubSrcBase = 'https://api.github.com/repos/RobertHaberle/ArchKatas/contents/';
+
+    async function fetchKata(filename) {
       console.log('fetchKata(', filename, ')');
-      fetch(githubSrcBase + filename, {
-        headers: {
-          // must send media type "application/vnd.github.VERSION.raw"
-          // to get contents in non-Base64-encoded format; while I could
-          // convert it, why bother if GH can give it to me raw?
-          Accept: "application/vnd.github.v3.raw"
-        }
-      })
-        .then(response => response.json())
-        .then(json => {
-          console.log("fetchKata", json);
-          $('#kata-title').text(json.title);
-          json.description.forEach((item) => {
-            $('#kata-text').append('<p>' + item + '</p>');
-          });
-          $('#bookmark-url').html('<a target="_blank" href="kata.html?kata=' + filename + '">Bookmark or click this to save your kata choice</a>');
+      try {
+        const response = await fetch(githubSrcBase + filename, {
+          headers: { Accept: 'application/vnd.github.v3.raw' },
         });
-    };
-    var fetchKataList = function (listFn) {
-      console.log('Fetching all katas...');
-      fetch(githubSrcBase)
-        .then(response => response.json())
-        .then(json => {
-          var jsons = json.filter(
-            (item) => (item.type === 'file') &&
-              (item.name.endsWith('.json')));
-          listFn(jsons);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        console.log('fetchKata', data);
+        document.getElementById('kata-title').textContent = data.title;
+        const kataTextDiv = document.getElementById('kata-text');
+        kataTextDiv.innerHTML = '';
+        data.description.forEach(item => {
+          const p = document.createElement('p');
+          p.textContent = item;
+          kataTextDiv.appendChild(p);
         });
-    };
+        const bookmarkUrl = document.getElementById('bookmark-url');
+        bookmarkUrl.innerHTML = `<a target="_blank" rel="noopener noreferrer" href="kata.html?kata=${encodeURIComponent(filename)}">Bookmark or click this to save your kata choice</a>`;
+      } catch (error) {
+        console.error('Error fetching kata:', error);
+      }
+    }
 
-    var kataname = $.getUrlVar('kata');
-    if (kataname === 'all') {
-      // Fetch a full list of katas from the repo
-      // and put each one, linked, in a display
-      fetchKataList(function (jsons) {
-        $('#kata-title').text("All Katas")
-        jsons.forEach((kata) => {
-          console.log("Building out link for ", kata);
-          let file = kata.path;
-          let name = kata.path.substring(0, kata.path.length - (".json".length));
-          $('#kata-text').append('<p><a href="kata.html?kata=' + file + '">' + name + '</a></p>');
+    async function fetchKataList(listFn) {
+      console.log('Fetching all katas...');
+      try {
+        const response = await fetch(githubSrcBase);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const files = await response.json();
+        const jsonFiles = files.filter(item => item.type === 'file' && item.name.endsWith('.json'));
+        listFn(jsonFiles);
+      } catch (error) {
+        console.error('Error fetching kata list:', error);
+      }
+    }
+
+    const kataName = getUrlParam('kata');
+
+    if (kataName === 'all') {
+      fetchKataList(jsonFiles => {
+        document.getElementById('kata-title').textContent = "All Katas";
+        const kataTextDiv = document.getElementById('kata-text');
+        kataTextDiv.innerHTML = '';
+        jsonFiles.forEach(kata => {
+          const file = kata.path;
+          const name = kata.name.slice(0, -5); // remove ".json"
+          const p = document.createElement('p');
+          const a = document.createElement('a');
+          a.href = `kata.html?kata=${encodeURIComponent(file)}`;
+          a.textContent = name;
+          p.appendChild(a);
+          kataTextDiv.appendChild(p);
         });
       });
-    }
-    else if (kataname !== undefined) {
-      // We want a specific kata; we assume it exists already
-      fetchKata(kataname);
-    }
-    else {
-      // Fetch a full list of katas from the repo
-      // and pick one at random to fetch individually
-      fetchKataList(function (jsons) {
-        // Pick one at random
-        var getRandomInt = function (max) {
-          return Math.floor(Math.random() * Math.floor(max));
-        };
-        console.log("Choosing kata from among", jsons.length, "choices....");
-        var choice = getRandomInt(jsons.length);
-        console.log("Chose", choice, "! That's", jsons[choice].name);
-        fetchKata(jsons[choice].name);
+    } else if (kataName) {
+      fetchKata(kataName);
+    } else {
+      fetchKataList(jsonFiles => {
+        const getRandomInt = max => Math.floor(Math.random() * max);
+        console.log("Choosing kata from among", jsonFiles.length, "choices....");
+        const choice = getRandomInt(jsonFiles.length);
+        console.log("Chose", choice, "! That's", jsonFiles[choice].name);
+        fetchKata(jsonFiles[choice].name);
       });
     }
   </script>
-
 </body>
 
 </html>
